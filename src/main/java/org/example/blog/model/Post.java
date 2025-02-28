@@ -28,11 +28,9 @@ public class Post {
     public Post() {
     }
 
-    public Post(String title, String content, String author, User user) {
+    public Post(String title, String content) {
         this.title = title;
         this.content = content;
-        this.author = author;
-        this.user = user;
         this.createdAt = LocalDateTime.now();
     }
 

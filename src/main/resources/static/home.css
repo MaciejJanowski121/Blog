@@ -1,0 +1,88 @@
+/* Global Styles */
+body {
+    font-family: 'Roboto', sans-serif; /* Nowoczesna czcionka */
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(120deg, #f6d365, #fda085); /* Tło gradientowe */
+    color: #333; /* Kolor tekstu */
+}
+
+/* Nagłówek */
+header {
+    padding: 20px;
+    background: linear-gradient(90deg, #4facfe, #00f2fe); /* Gradient poziomy */
+    color: white;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-bottom: 4px solid #003b57; /* Dodanie wrażenia głębi */
+}
+
+header h1 {
+    margin: 0;
+}
+
+/* Nawigacja */
+#nav {
+    display: flex;
+    flex-direction: column; /* Kolumnowy układ */
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.5); /* Transparentne, jasne tło */
+    border-radius: 10px; /* Zaokrąglenia krawędzi */
+    margin: 20px 10px; /* Odstępy od brzegów */
+    backdrop-filter: blur(5px); /* Efekt rozmytego tła */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Delikatny cień */
+}
+
+#nav a {
+    display: block;
+    margin: 8px 0;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #444; /* Szary kolor tekstu */
+    font-weight: bold;
+    transition: all 0.3s ease; /* Animacja na hover */
+    border-radius: 8px;
+}
+
+#nav a:hover {
+    color: white;
+    background: linear-gradient(90deg, #4facfe, #00f2fe); /* Gradient na hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Podświetlenie */
+    transform: scale(1.05); /* Delikatne powiększenie */
+}
+
+/* Treść główna */
+main {
+    flex: 1;
+    padding: 20px;
+    margin: 10px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* Stopka */
+footer {
+    text-align: center;
+    padding: 15px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff); /* Gradient dla stopki */
+    color: white;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+}
+
+footer p {
+    margin: 0;
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+<div id="loggedin"></div>
+<div class="login-container">
+  <h1>Login</h1>
+  <form id="loginForm">
+    <div class="form-group">
+      <label for="login">Login</label>
+      <input type="text" id="login" name="login" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <button class="login-button">Login</button>
+  </form>
+  <div id="reminder">
+    <a href="register.html" class="register-link">Don't have an account? Register here</a>
+  </div>
+</div>
+<script>
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('loginForm');
+    const loginInput = document.getElementById('login');
+    const passwordInput = document.getElementById('password');
+    loginInput.focus();
+
+    let loggedIn = localStorage.getItem("token") !== null;
+
+    if (loggedIn) {
+      showLoggedInMessage();
+    }
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const username = loginInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!username || !password) {
+        alert("Please enter both username and password.");
+        return;
+      }
+
+      const loginButton = form.querySelector('.login-button');
+      loginButton.disabled = true;
+      loginButton.innerText = "Logging in...";
+
+      try {
+        const response = await fetch("/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+
+        if (!response.ok) {
+          const errorMessage = await response.text() || "Login failed.";
+          alert(errorMessage);
+          loginButton.disabled = false;
+          loginButton.innerText = "Login";
+          return;
+        }
+
+        const data = await response.json();
+        if (data && data.token) {
+          localStorage.setItem("token", data.token);
+          alert("Login Successful");
+          showLoggedInMessage();
+          setTimeout(redirectToHome, 2000);
+        } else {
+          alert("No token received. Login failed.");
+          loginButton.disabled = false;
+          loginButton.innerText = "Login";
+        }
+      } catch (error) {
+        alert("Error: " + error.message);
+        loginButton.disabled = false;
+        loginButton.innerText = "Login";
+      }
+    });
+  });
+
+  function redirectToHome() {
+    window.location.href = "home.html";
+  }
+
+  function logout() {
+    localStorage.removeItem("token");
+    alert("You have been logged out.");
+    location.reload();
+  }
+
+  function showLoggedInMessage() {
+    const loggedinDiv = document.getElementById("loggedin");
+    loggedinDiv.innerHTML = `
+    <div class="login-success">
+      <p>You are successfully logged in!</p>
+      <button class="home-button" onclick="redirectToHome()">Go to Home</button>
+      <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+  `;
+    document.querySelector(".login-container").style.display = "none";
+  }
+</script>
+</body>
+</html>
