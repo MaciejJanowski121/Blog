@@ -11,10 +11,6 @@
   <h1>Create a New Post</h1>
   <form id="postForm">
     <div class="form-group">
-      <label>Author:</label>
-      <span id="author-name"></span>
-    </div>
-    <div class="form-group">
       <label for="postTitle">Post Title</label>
       <input type="text" id="postTitle" name="postTitle" required>
     </div>
@@ -27,19 +23,65 @@
 </div>
 
 <script>
+  document.addEventListener("DOMContentLoaded", async function () {
+  try {
+    const response = await fetch("/api/posts", {
+      method: "GET",
+      credentials: "include"
+    });
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error("Server Error: ", errorMessage);
+    }
+    const posts = await response.json();
+    console.log(posts);
 
-  let loggedIn = localStorage.getItem("token") !== null;
+  } catch (error) {
+      console.error("Error:", error);
+      alert("You need to be logged in ");
+      window.location.href = "login.html";
+    }
 
-  if (!loggedIn) {
-    alert("You must be logged in to access this page.");
-    window.location.href = "login.html"; // Przekierowanie na stronę logowania
-  }
+  });
 
-document.getElementById("postForm").addEventListener("submit", async function (e) {
-  username = localStorage.getItem("username");
-  document.getElementById("author-name").innerHTML = username;
-  e.preventDefault();
-}
+
+
+
+  document.getElementById("postForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const postTitle = document.getElementById("postTitle").value.trim();
+    const postContent = document.getElementById("postContent").value.trim();
+
+
+    try {
+      const response = await fetch("/api/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({title: postTitle, content: postContent}),
+        credentials: "include"
+
+      });
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error("Server Error: ", errorMessage);
+        alert("Post Creation Failed: " + errorMessage);
+      } else {
+        alert("Post Creation Successful");
+        window.location.href = "home.html";
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An unexpected error occurred: " + error.message);
+    }
+  })
+
+
+
+
+
+
 
 
 </script>

@@ -36,16 +36,13 @@
     const password = document.getElementById("password").value;
 
     try {
-      // Wysłanie danych do endpointa
       const response = await fetch("/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
+        body: JSON.stringify({ username, password }),
+        credentials: "include"  // 👈 Dodano dla HttpOnly Cookie
       });
 
       if (!response.ok) {
@@ -53,9 +50,8 @@
         console.error("Server Error: ", errorMessage);
         alert("Registration Failed: " + errorMessage);
       } else {
-        const data = await response.json();
         alert("Registration Successful");
-        console.log("Response data:", data);
+        window.location.href = "login.html";
       }
     } catch (error) {
       console.error("Error:", error);

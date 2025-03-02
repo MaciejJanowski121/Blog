@@ -14,9 +14,9 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*") // Użyj "*" dla testów, ale w produkcji podaj konkretne URL
+                        .allowedOrigins("http://localhost:3000") // Domena frontendu
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedHeaders("*");
+                        .allowCredentials(true); // Ważne dla HttpOnly Cookie
             }
         };
     }

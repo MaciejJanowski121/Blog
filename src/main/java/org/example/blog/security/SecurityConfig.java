@@ -3,6 +3,7 @@ package org.example.blog.security;
 import org.example.blog.service.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -26,7 +27,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register","home.html","home","style.css", "/auth/login","register.html","login.html","home.css","register.css","login.css","addPost.html","addPost.css").permitAll()
+                        .requestMatchers("/auth/register","home.html","home","style.css", "/auth/login","register.html","login.html","home.css","register.css","login.css","addPost.html","addPost.css","allPosts.css","allPosts.html").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/posts").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

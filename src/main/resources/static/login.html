@@ -26,18 +26,19 @@
   </div>
 </div>
 <script>
-
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('loginForm');
     const loginInput = document.getElementById('login');
     const passwordInput = document.getElementById('password');
+    const errorMessageDiv = document.createElement('div');
+    errorMessageDiv.setAttribute('id', 'error-message');
+    errorMessageDiv.style.color = 'red';
+    form.prepend(errorMessageDiv);
+
     loginInput.focus();
 
-    let loggedIn = localStorage.getItem("token") !== null;
-
-    if (loggedIn) {
-      showLoggedInMessage();
-    }
+    // Sprawdź status zalogowania na początku
+    checkLoggedInStatus();
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -46,7 +47,7 @@
       const password = passwordInput.value.trim();
 
       if (!username || !password) {
-        alert("Please enter both username and password.");
+        showErrorMessage("Please enter both username and password.");
         return;
       }
 
@@ -59,54 +60,78 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password }),
+          credentials: "include"  // 👈 Dodano dla HttpOnly Cookie
         });
 
         if (!response.ok) {
           const errorMessage = await response.text() || "Login failed.";
-          alert(errorMessage);
+          showErrorMessage(errorMessage);
           loginButton.disabled = false;
           loginButton.innerText = "Login";
           return;
         }
 
-        const data = await response.json();
-        if (data && data.token) {
-          localStorage.setItem("token", data.token);
-          alert("Login Successful");
-          showLoggedInMessage();
-          setTimeout(redirectToHome, 2000);
-        } else {
-          alert("No token received. Login failed.");
-          loginButton.disabled = false;
-          loginButton.innerText = "Login";
-        }
+        alert("Login Successful");
+        showLoggedInMessage();
+        setTimeout(redirectToHome, 2000);
       } catch (error) {
-        alert("Error: " + error.message);
+        showErrorMessage("An error occurred: " + error.message);
         loginButton.disabled = false;
         loginButton.innerText = "Login";
       }
     });
   });
 
+  // Funkcja do sprawdzenia, czy użytkownik jest już zalogowany
+  function checkLoggedInStatus() {
+    fetch("/auth/check-auth", {
+      method: "GET",
+      credentials: "include"  // 👈 Dodano dla HttpOnly Cookie
+    })
+            .then(response => {
+              if (response.ok) {
+                // Użytkownik jest zalogowany – pokaż komunikat i ukryj formularz logowania
+                showLoggedInMessage();
+              }
+            })
+            .catch(error => {
+              console.error("Error checking auth status:", error);
+            });
+  }
+
+  // Funkcja do wyświetlania komunikatu o błędzie
+  function showErrorMessage(message) {
+    const errorMessageDiv = document.getElementById('error-message');
+    errorMessageDiv.innerText = message;
+  }
+
+  // Funkcja do przekierowania na stronę główną
   function redirectToHome() {
     window.location.href = "home.html";
   }
 
+  // Funkcja do wylogowania użytkownika
   function logout() {
-    localStorage.removeItem("token");
-    alert("You have been logged out.");
-    location.reload();
+    fetch("/auth/logout", {
+      method: "POST",
+      credentials: "include"  // 👈 Dodano dla HttpOnly Cookie
+    }).then(() => {
+      alert("You have been logged out.");
+      location.reload();
+    }).catch((error) => {
+      alert("Error: " + error.message);
+    });
   }
 
+  // Funkcja do wyświetlania komunikatu, gdy użytkownik jest zalogowany
   function showLoggedInMessage() {
     const loggedinDiv = document.getElementById("loggedin");
     loggedinDiv.innerHTML = `
     <div class="login-success">
-      <p>You are successfully logged in!</p>
+      <p>You are already logged in!</p>
       <button class="home-button" onclick="redirectToHome()">Go to Home</button>
       <button class="logout-button" onclick="logout()">Logout</button>
-    </div>
-  `;
+    </div>`;
     document.querySelector(".login-container").style.display = "none";
   }
 </script>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Posts</title>
+    <link rel="stylesheet" href="allPosts.css">
+</head>
+<body>
+
+<header>
+    <h1>All Posts</h1>
+    <a href="addPost.html" class="add-post-button">+ Add New Post</a>
+</header>
+
+<main>
+    <div id="posts-container">
+
+    </div>
+
+
+</main>
+
+</body>
+
+<script>
+
+    getPosts();
+async function getPosts() {
+    let posts = document.getElementById('posts-container');
+
+    try {
+        const response = await fetch('/api/posts')
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            console.error("Server Error: ", errorMessage);
+        } else {
+            const data = await response.json();
+
+    posts.innerHTML = data.map(post => `
+            <div class="post">
+                <h1>Username: ${post.user.username}</h1>
+                <h2>Post Title: ${post.title}</h2>
+                <p>${post.content}</p>
+                <button class="delete-button" onclick="deletePost(${post.id})">Delete Post</button>
+            </div>
+        `).join(''); // 👈 Usuwa problem z nadpisywaniem `innerHTML`
+
+        }
+    } catch (error) {
+        console.error(error)
+    }
+
+}
+
+async function deletePost(id) {
+    const response = await fetch (`/api/posts/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+    })
+    if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error("Server Error: ", errorMessage);
+    } else {
+        console.log("Post Deleted");
+    }
+    }
+
+
+
+
+</script>
+</html>

@@ -38,9 +38,9 @@ public class JwtTokenProvider {
     }
 
     // 📌 2. **Weryfikacja Tokenu**
-    public boolean validateToken(String token, String username) {
-        final String extractedUsername = getUsernameFromToken(token);
-        return (extractedUsername.equals(username) && !isTokenExpired(token));
+    public boolean validateToken(String token) {
+        String username = getUsernameFromToken(token);
+        return (username != null && !isTokenExpired(token));
     }
 
     // 📌 3. **Pobieranie danych z Tokenu**

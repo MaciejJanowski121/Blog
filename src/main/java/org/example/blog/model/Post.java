@@ -1,5 +1,8 @@
 package org.example.blog.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -21,17 +24,19 @@ public class Post {
     private LocalDateTime createdAt;
 
     // User Relation
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public Post() {
     }
 
-    public Post(String title, String content) {
+    public Post(String title, String content,User user) {
         this.title = title;
         this.content = content;
         this.createdAt = LocalDateTime.now();
+        this.user = user;
     }
 
     // Getter & Setter
