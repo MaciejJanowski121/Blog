@@ -1,6 +1,7 @@
 package org.example.blog.controller;
 
 import org.example.blog.model.Post;
+import org.example.blog.model.PostDTO;
 import org.example.blog.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -10,30 +11,46 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
+
     private final PostService postService;
+
     public PostController(PostService postService) {
         this.postService = postService;
     }
+
+    // Pobiera wszystkie posty (posortowane od najnowszych)
     @GetMapping
-    public List<Post> getAllPosts() {
-        return postService.getAllPosts();
+    public List<PostDTO> getAllPosts() {
+        return postService.allPosts();
     }
 
+    // Pobiera pojedynczy post po ID
     @GetMapping("/{id}")
-    public Post getPostById(@PathVariable Long id) {
-        return postService.getPostById(id);
+    public PostDTO getPostById(@PathVariable Long id) {
+        return new PostDTO(
+                postService.getPostById(id).getId(),
+                postService.getPostById(id).getTitle(),
+                postService.getPostById(id).getContent(),
+                postService.getPostById(id).getAuthor()
+        );
     }
 
+    // Tworzy nowy post
     @PostMapping
-   @ResponseStatus(HttpStatus.CREATED)
-    public Post createPost(@RequestBody Post post) {
-        return postService.createPost(post);
+    @ResponseStatus(HttpStatus.CREATED)
+    public PostDTO createPost(@RequestBody PostDTO postDTO) {
+        return postService.createPost(postDTO);
     }
+
+    // Aktualizuje post
     @PutMapping("/{id}")
-    public Post updatePost(@PathVariable Long id, @RequestBody Post updatedPost) {
+    public PostDTO updatePost(@PathVariable Long id, @RequestBody PostDTO updatedPost) {
         return postService.updatePost(id, updatedPost);
     }
+
+    // Usuwa post po ID
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePostById(@PathVariable Long id) {
         postService.deletePostById(id);
     }

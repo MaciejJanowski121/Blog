@@ -27,8 +27,11 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register","home.html","home","style.css", "/auth/login","register.html","login.html","home.css","register.css","login.css","addPost.html","addPost.css","allPosts.css","allPosts.html").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/posts").authenticated()
+                        .requestMatchers("/auth/register", "/home.html", "/home", "/style.css",
+                                "/auth/login", "/register.html", "/login.html", "/home.css",
+                                "/register.css", "/login.css", "/addPost.html", "/addPost.css",
+                                "/allPosts.css", "/allPosts.html").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

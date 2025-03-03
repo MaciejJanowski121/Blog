@@ -14,60 +14,51 @@
 </header>
 
 <main>
-    <div id="posts-container">
-
-    </div>
-
-
+    <div id="posts-container"></div>
 </main>
 
-</body>
-
 <script>
-
     getPosts();
-async function getPosts() {
-    let posts = document.getElementById('posts-container');
 
-    try {
-        const response = await fetch('/api/posts')
+    async function getPosts() {
+        let postsContainer = document.getElementById('posts-container');
+
+        try {
+            const response = await fetch('/api/posts');
+            if (!response.ok) {
+                const errorMessage = await response.text();
+                console.error("Server Error: ", errorMessage);
+            } else {
+                const data = await response.json();
+                postsContainer.innerHTML = data.map(post => `
+                    <div class="post" id="post-${post.id}">
+                        <h1>Username: ${post.author}</h1>
+                        <h2>Post Title: ${post.title}</h2>
+                        <p>${post.content}</p>
+                        <button class="delete-button" onclick="deletePost(${post.id})">Delete Post</button>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function deletePost(id) {
+        const response = await fetch(`/api/posts/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+
         if (!response.ok) {
             const errorMessage = await response.text();
             console.error("Server Error: ", errorMessage);
         } else {
-            const data = await response.json();
-
-    posts.innerHTML = data.map(post => `
-            <div class="post">
-                <h1>Username: ${post.user.username}</h1>
-                <h2>Post Title: ${post.title}</h2>
-                <p>${post.content}</p>
-                <button class="delete-button" onclick="deletePost(${post.id})">Delete Post</button>
-            </div>
-        `).join(''); // 👈 Usuwa problem z nadpisywaniem `innerHTML`
-
+            console.log("Post Deleted");
+            document.getElementById(`post-${id}`).remove(); // Usuń post z DOM
         }
-    } catch (error) {
-        console.error(error)
     }
-
-}
-
-async function deletePost(id) {
-    const response = await fetch (`/api/posts/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-    })
-    if (!response.ok) {
-        const errorMessage = await response.text();
-        console.error("Server Error: ", errorMessage);
-    } else {
-        console.log("Post Deleted");
-    }
-    }
-
-
-
-
 </script>
+
+</body>
 </html>

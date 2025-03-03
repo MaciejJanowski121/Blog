@@ -23,66 +23,60 @@
 </div>
 
 <script>
+  // Sprawdzenie czy użytkownik jest zalogowany
   document.addEventListener("DOMContentLoaded", async function () {
-  try {
-    const response = await fetch("/api/posts", {
-      method: "GET",
-      credentials: "include"
-    });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      console.error("Server Error: ", errorMessage);
-    }
-    const posts = await response.json();
-    console.log(posts);
+    try {
+      const response = await fetch("/api/auth/check", {
+        method: "GET",
+        credentials: "include" // ✅ Wysyła ciasteczko JWT do backendu
+      });
 
-  } catch (error) {
-      console.error("Error:", error);
-      alert("You need to be logged in ");
-      window.location.href = "login.html";
-    }
+      if (!response.ok) {
+        throw new Error("Unauthorized");
+      }
 
+    } catch (error) {
+      alert("You need to be logged in to create a post.");
+      window.location.href = "login.html"; // ✅ Przekierowanie do logowania
+    }
   });
 
-
-
-
+  // Obsługa formularza dodawania posta
   document.getElementById("postForm").addEventListener("submit", async function (e) {
     e.preventDefault();
     const postTitle = document.getElementById("postTitle").value.trim();
     const postContent = document.getElementById("postContent").value.trim();
 
-
     try {
       const response = await fetch("/api/posts", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({title: postTitle, content: postContent}),
-        credentials: "include"
-
+        body: JSON.stringify({ title: postTitle, content: postContent }),
+        credentials: "include" // ✅ Wysyła JWT z ciasteczek
       });
+
+      if (response.status === 401 || response.status === 403) { // Jeśli użytkownik nie jest zalogowany
+        alert("You need to be logged in to create a post.");
+        window.location.href = "login.html";
+        return;
+      }
+
       if (!response.ok) {
         const errorMessage = await response.text();
         console.error("Server Error: ", errorMessage);
         alert("Post Creation Failed: " + errorMessage);
       } else {
         alert("Post Creation Successful");
-        window.location.href = "home.html";
+        window.location.href = "home.html"; // ✅ Przekierowanie po sukcesie
       }
     } catch (error) {
       console.error("Error:", error);
       alert("An unexpected error occurred: " + error.message);
+      window.location.href = "login.html"; // ✅ Przekierowanie w przypadku błędu
     }
-  })
-
-
-
-
-
-
-
+  });
 
 </script>
 </body>

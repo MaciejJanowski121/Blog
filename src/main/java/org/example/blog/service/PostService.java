@@ -1,6 +1,7 @@
 package org.example.blog.service;
 
 import org.example.blog.model.Post;
+import org.example.blog.model.PostDTO;
 import org.example.blog.model.User;
 import org.example.blog.repository.PostRepository;
 import org.example.blog.repository.UserRepository;
@@ -21,9 +22,7 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
-    }
+
     public Post getPostById(Long id) {
         return postRepository.findById(id).orElse(null);
     }
@@ -33,20 +32,45 @@ public class PostService {
     public void deletePostById(Long id) {
         postRepository.deleteById(id);
     }
-    public Post createPost(Post post) {
+
+
+    public PostDTO createPost (PostDTO postDTO) {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        Post post = new Post();
+
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+
+        post.setTitle(postDTO.getTitle());
+        post.setContent(postDTO.getContent());
         post.setAuthor(username);
         post.setUser(user);
-        return postRepository.save(post);
+        postRepository.save(post);
+
+        return new PostDTO(post.getId(),post.getTitle(),post.getContent(),post.getAuthor());
+
     }
-    public Post updatePost(Long id, Post updatedPost) {
-        Post post = postRepository.findById(id).orElse(null);
-        if (post != null) {
-            post.setTitle(updatedPost.getTitle());
-            post.setContent(updatedPost.getContent());
+    public PostDTO updatePost(Long id, PostDTO updatedPostDTO) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // Pobierz zalogowanego użytkownika
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+        // Sprawdź, czy to właściciel posta
+        if (!post.getAuthor().equals(username)) {
+            throw new RuntimeException("Unauthorized: You can only edit your own posts");
         }
-        return postRepository.save(post);
+
+        // Aktualizuj dane posta
+        post.setTitle(updatedPostDTO.getTitle());
+        post.setContent(updatedPostDTO.getContent());
+
+        postRepository.save(post);
+
+        return new PostDTO(post.getId(), post.getTitle(), post.getContent(), post.getAuthor());
+    }
+
+    public List<PostDTO> allPosts () {
+        return postRepository.findAllByOrderByIdDesc().stream().map(post -> new PostDTO(post.getId(),post.getTitle(),post.getContent(),post.getAuthor())).collect(java.util.stream.Collectors.toList());
     }
 
 
