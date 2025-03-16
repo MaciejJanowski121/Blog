@@ -2,61 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register Page</title>
-  <link rel="stylesheet" href="register.css"> <!-- Łączenie pliku CSS dla strony rejestracji -->
+  <link rel="stylesheet" href="register.css">
 </head>
 <body>
+
 <div class="register-container">
   <h1>Register</h1>
-  <form id="registerForm"> <!-- Dodano ID, aby programowo dodać listener -->
+  <form id="registerForm">
     <div class="form-group">
       <label for="username">Username</label>
       <input type="text" id="username" name="username" required>
     </div>
-
     <div class="form-group">
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required>
     </div>
-    <button class="register-button" type="submit">Register</button> <!-- Typ submit -->
+    <button class="register-button">Register</button>
   </form>
-  <a href="home.html" class="login-link">Go to Home Page</a>
+
+  <div class="register-actions">
+    <a href="login.html" class="back-button">Back to Login</a>
+    <a href="home.html" class="home-button">Back to Home</a>
+  </div>
 </div>
-</body>
 
 <script>
-
-  const form = document.getElementById('registerForm');
-
-  form.addEventListener('submit', async function(e) {
+  document.getElementById("registerForm").addEventListener("submit", async function(e) {
     e.preventDefault();
-
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
     try {
       const response = await fetch("/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-        credentials: "include"  // 👈 Dodano dla HttpOnly Cookie
+        credentials: "include"
       });
 
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        console.error("Server Error: ", errorMessage);
-        alert("Registration Failed: " + errorMessage);
-      } else {
-        alert("Registration Successful");
+      if (response.ok) {
         window.location.href = "login.html";
+      } else {
+        alert("Registration failed!");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("An unexpected error occurred: " + error.message);
     }
   });
 </script>
+
+</body>
 </html>

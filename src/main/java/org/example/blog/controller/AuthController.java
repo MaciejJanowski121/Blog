@@ -22,12 +22,12 @@ public class AuthController {
     public ResponseEntity<Object> register(@RequestBody User user, HttpServletResponse response) {
         String token = authService.register(user);
 
-        // Ustaw HttpOnly Cookie
+
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false); // Użyj true na produkcji z HTTPS
+        cookie.setSecure(false);
         cookie.setPath("/");
-        cookie.setMaxAge(24 * 60 * 60); // 1 dzień
+        cookie.setMaxAge(24 * 60 * 60);
         response.addCookie(cookie);
 
         return ResponseEntity.ok().body(Map.of("message", "Registration successful"));
@@ -37,12 +37,12 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> login(@RequestBody User user, HttpServletResponse response) {
         String token = authService.login(user.getUsername(), user.getPassword());
 
-        // Ustaw HttpOnly Cookie
+
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false); // Użyj true na produkcji z HTTPS
+        cookie.setSecure(false);
         cookie.setPath("/");
-        cookie.setMaxAge(24 * 60 * 60); // 1 dzień
+        cookie.setMaxAge(24 * 60 * 60);
         response.addCookie(cookie);
 
         return ResponseEntity.ok(Map.of("message", "Login successful"));
@@ -55,7 +55,7 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
         cookie.setPath("/");
-        cookie.setMaxAge(0); // Usunięcie cookie
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
 
         return ResponseEntity.ok(Map.of("message", "Logout successful"));
@@ -63,7 +63,7 @@ public class AuthController {
 
     @GetMapping("/check-auth")
     public ResponseEntity<?> checkAuth() {
-        // Jeśli użytkownik jest zalogowany, zwraca status 200 OK
+
         return ResponseEntity.ok(Map.of("status", "authenticated"));
     }
 }

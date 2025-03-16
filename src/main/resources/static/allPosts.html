@@ -2,18 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Posts</title>
     <link rel="stylesheet" href="allPosts.css">
+    <link rel="stylesheet" href="navbar.css">
 </head>
 <body>
 
-<header>
-    <h1>All Posts</h1>
-    <a href="addPost.html" class="add-post-button">+ Add New Post</a>
-</header>
+<header id="navbar-container"></header>
+<script src="navbar.js"></script>
 
 <main>
+    <h1>All Posts</h1>
+    <a href="addPost.html" class="add-post-button">+ Add New Post</a>
     <div id="posts-container"></div>
 </main>
 
@@ -26,8 +26,7 @@
         try {
             const response = await fetch('/api/posts');
             if (!response.ok) {
-                const errorMessage = await response.text();
-                console.error("Server Error: ", errorMessage);
+                console.error("Server Error");
             } else {
                 const data = await response.json();
                 postsContainer.innerHTML = data.map(post => `
@@ -44,18 +43,24 @@
         }
     }
 
-    async function deletePost(id) {
-        const response = await fetch(`/api/posts/${id}`, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
 
-        if (!response.ok) {
-            const errorMessage = await response.text();
-            console.error("Server Error: ", errorMessage);
-        } else {
-            console.log("Post Deleted");
-            document.getElementById(`post-${id}`).remove(); // Usuń post z DOM
+    async function deletePost(id) {
+        try {
+            const response = await fetch(`/api/posts/${id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                alert("Its not Your Post");
+                throw new Error(`Server error: ${response.status}`)
+
+            }
+
+            document.getElementById(`post-${id}`).remove();
+            console.log(`Post ${id} deleted successfully`);
+        } catch (error) {
+            console.error("Error deleting post:", error);
         }
     }
 </script>

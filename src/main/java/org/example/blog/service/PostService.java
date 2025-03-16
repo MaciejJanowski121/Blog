@@ -8,6 +8,7 @@ import org.example.blog.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,11 +27,21 @@ public class PostService {
     public Post getPostById(Long id) {
         return postRepository.findById(id).orElse(null);
     }
-    public Post savePost(Post post) {
-        return postRepository.save(post);
-    }
+
+
+    @Transactional
     public void deletePostById(Long id) {
-        postRepository.deleteById(id);
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+        if (!post.getAuthor().equals(username)) {
+            throw new RuntimeException("Unauthorized: You can only delete your own posts");
+        }
+
+        post.setUser(null);
+        postRepository.delete(post);
     }
 
 
@@ -52,15 +63,15 @@ public class PostService {
     public PostDTO updatePost(Long id, PostDTO updatedPostDTO) {
         Post post = postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
 
-        // Pobierz zalogowanego użytkownika
+
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
 
-        // Sprawdź, czy to właściciel posta
+
         if (!post.getAuthor().equals(username)) {
             throw new RuntimeException("Unauthorized: You can only edit your own posts");
         }
 
-        // Aktualizuj dane posta
+
         post.setTitle(updatedPostDTO.getTitle());
         post.setContent(updatedPostDTO.getContent());
 

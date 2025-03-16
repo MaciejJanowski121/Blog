@@ -18,13 +18,13 @@ public class PostController {
         this.postService = postService;
     }
 
-    // Pobiera wszystkie posty (posortowane od najnowszych)
+
     @GetMapping
     public List<PostDTO> getAllPosts() {
         return postService.allPosts();
     }
 
-    // Pobiera pojedynczy post po ID
+
     @GetMapping("/{id}")
     public PostDTO getPostById(@PathVariable Long id) {
         return new PostDTO(
@@ -35,20 +35,20 @@ public class PostController {
         );
     }
 
-    // Tworzy nowy post
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PostDTO createPost(@RequestBody PostDTO postDTO) {
         return postService.createPost(postDTO);
     }
 
-    // Aktualizuje post
+
     @PutMapping("/{id}")
     public PostDTO updatePost(@PathVariable Long id, @RequestBody PostDTO updatedPost) {
         return postService.updatePost(id, updatedPost);
     }
 
-    // Usuwa post po ID
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePostById(@PathVariable Long id) {

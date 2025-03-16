@@ -2,17 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Page</title>
   <link rel="stylesheet" href="login.css">
 </head>
 <body>
-<div id="loggedin"></div>
+
 <div class="login-container">
   <h1>Login</h1>
   <form id="loginForm">
     <div class="form-group">
-      <label for="login">Login</label>
+      <label for="login">Username</label>
       <input type="text" id="login" name="login" required>
     </div>
     <div class="form-group">
@@ -21,119 +20,37 @@
     </div>
     <button class="login-button">Login</button>
   </form>
-  <div id="reminder">
-    <a href="register.html" class="register-link">Don't have an account? Register here</a>
+
+  <div class="login-actions">
+    <a href="register.html" class="back-button">Register</a>
+    <a href="home.html" class="home-button">Back to Home</a>
   </div>
 </div>
+
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('loginForm');
-    const loginInput = document.getElementById('login');
-    const passwordInput = document.getElementById('password');
-    const errorMessageDiv = document.createElement('div');
-    errorMessageDiv.setAttribute('id', 'error-message');
-    errorMessageDiv.style.color = 'red';
-    form.prepend(errorMessageDiv);
+  document.getElementById("loginForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const username = document.getElementById("login").value;
+    const password = document.getElementById("password").value;
 
-    loginInput.focus();
+    try {
+      const response = await fetch("/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+        credentials: "include"
+      });
 
-    // Sprawdź status zalogowania na początku
-    checkLoggedInStatus();
-
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-
-      const username = loginInput.value.trim();
-      const password = passwordInput.value.trim();
-
-      if (!username || !password) {
-        showErrorMessage("Please enter both username and password.");
-        return;
+      if (response.ok) {
+        window.location.href = "home.html";
+      } else {
+        alert("Login failed!");
       }
-
-      const loginButton = form.querySelector('.login-button');
-      loginButton.disabled = true;
-      loginButton.innerText = "Logging in...";
-
-      try {
-        const response = await fetch("/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }),
-          credentials: "include"  // 👈 Dodano dla HttpOnly Cookie
-        });
-
-        if (!response.ok) {
-          const errorMessage = await response.text() || "Login failed.";
-          showErrorMessage(errorMessage);
-          loginButton.disabled = false;
-          loginButton.innerText = "Login";
-          return;
-        }
-
-        alert("Login Successful");
-        showLoggedInMessage();
-        setTimeout(redirectToHome, 2000);
-      } catch (error) {
-        showErrorMessage("An error occurred: " + error.message);
-        loginButton.disabled = false;
-        loginButton.innerText = "Login";
-      }
-    });
+    } catch (error) {
+      console.error("Error:", error);
+    }
   });
-
-  // Funkcja do sprawdzenia, czy użytkownik jest już zalogowany
-  function checkLoggedInStatus() {
-    fetch("/auth/check-auth", {
-      method: "GET",
-      credentials: "include"  // 👈 Dodano dla HttpOnly Cookie
-    })
-            .then(response => {
-              if (response.ok) {
-                // Użytkownik jest zalogowany – pokaż komunikat i ukryj formularz logowania
-                showLoggedInMessage();
-              }
-            })
-            .catch(error => {
-              console.error("Error checking auth status:", error);
-            });
-  }
-
-  // Funkcja do wyświetlania komunikatu o błędzie
-  function showErrorMessage(message) {
-    const errorMessageDiv = document.getElementById('error-message');
-    errorMessageDiv.innerText = message;
-  }
-
-  // Funkcja do przekierowania na stronę główną
-  function redirectToHome() {
-    window.location.href = "home.html";
-  }
-
-  // Funkcja do wylogowania użytkownika
-  function logout() {
-    fetch("/auth/logout", {
-      method: "POST",
-      credentials: "include"  // 👈 Dodano dla HttpOnly Cookie
-    }).then(() => {
-      alert("You have been logged out.");
-      location.reload();
-    }).catch((error) => {
-      alert("Error: " + error.message);
-    });
-  }
-
-  // Funkcja do wyświetlania komunikatu, gdy użytkownik jest zalogowany
-  function showLoggedInMessage() {
-    const loggedinDiv = document.getElementById("loggedin");
-    loggedinDiv.innerHTML = `
-    <div class="login-success">
-      <p>You are already logged in!</p>
-      <button class="home-button" onclick="redirectToHome()">Go to Home</button>
-      <button class="logout-button" onclick="logout()">Logout</button>
-    </div>`;
-    document.querySelector(".login-container").style.display = "none";
-  }
 </script>
+
 </body>
 </html>

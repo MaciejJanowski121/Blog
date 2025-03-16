@@ -28,19 +28,18 @@ public class User implements UserDetails {
     private String role;
 
 //Post Relation
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<Post> posts;
-
+@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+private Set<Post> posts;
     public User() {
     }
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.role = "ROLE_USER"; // Domyślna rola dla użytkowników
+        this.role = "ROLE_USER";
     }
 
-// Implementation of UserDetails Methods
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role));
@@ -76,7 +75,7 @@ public class User implements UserDetails {
         return true;
     }
 
-   // Getter & Setter
+
     public Long getId() {
         return id;
     }

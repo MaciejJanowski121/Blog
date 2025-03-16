@@ -24,9 +24,9 @@ public class Post {
     private LocalDateTime createdAt;
 
     // User Relation
-    @ManyToOne(fetch = FetchType.EAGER)
-
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id", nullable = false)
+
     private User user;
 
     public Post() {

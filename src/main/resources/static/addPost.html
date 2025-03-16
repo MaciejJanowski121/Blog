@@ -2,82 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Post</title>
   <link rel="stylesheet" href="addPost.css">
+  <link rel="stylesheet" href="navbar.css">
 </head>
 <body>
-<div id="create-post-container">
-  <h1>Create a New Post</h1>
-  <form id="postForm">
-    <div class="form-group">
-      <label for="postTitle">Post Title</label>
-      <input type="text" id="postTitle" name="postTitle" required>
-    </div>
-    <div class="form-group">
-      <label for="postContent">Post Content</label>
-      <textarea id="postContent" name="postContent" rows="6" required></textarea>
-    </div>
-    <button class="submit-button" type="submit">Submit Post</button>
-  </form>
-</div>
+
+<header id="navbar-container"></header>
+<script src="navbar.js"></script>
+
+<main>
+  <div id="create-post-container">
+    <h1>Create a New Post</h1>
+    <form id="postForm">
+      <div class="form-group">
+        <label for="postTitle">Post Title</label>
+        <input type="text" id="postTitle" required>
+      </div>
+
+      <div class="form-group">
+        <label for="postContent">Post Content</label>
+        <textarea id="postContent" rows="6" required></textarea>
+      </div>
+
+      <button class="submit-button" type="submit">Submit Post</button>
+    </form>
+  </div>
+</main>
 
 <script>
-  // Sprawdzenie czy użytkownik jest zalogowany
   document.addEventListener("DOMContentLoaded", async function () {
     try {
-      const response = await fetch("/api/auth/check", {
-        method: "GET",
-        credentials: "include" // ✅ Wysyła ciasteczko JWT do backendu
-      });
-
+      const response = await fetch("/auth/check-auth", { credentials: "include" });
       if (!response.ok) {
-        throw new Error("Unauthorized");
+        window.location.href = "login.html"; //
       }
-
     } catch (error) {
-      alert("You need to be logged in to create a post.");
-      window.location.href = "login.html"; // ✅ Przekierowanie do logowania
+      console.error("Authorization Error:", error);
+      window.location.href = "login.html";
     }
-  });
 
-  // Obsługa formularza dodawania posta
-  document.getElementById("postForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const postTitle = document.getElementById("postTitle").value.trim();
-    const postContent = document.getElementById("postContent").value.trim();
 
-    try {
-      const response = await fetch("/api/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ title: postTitle, content: postContent }),
-        credentials: "include" // ✅ Wysyła JWT z ciasteczek
-      });
+    document.getElementById("postForm").addEventListener("submit", async function (event) {
+      event.preventDefault();
 
-      if (response.status === 401 || response.status === 403) { // Jeśli użytkownik nie jest zalogowany
-        alert("You need to be logged in to create a post.");
-        window.location.href = "login.html";
+      const title = document.getElementById("postTitle").value;
+      const content = document.getElementById("postContent").value;
+
+      if (!title || !content) {
+        alert("All fields are required!");
         return;
       }
 
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        console.error("Server Error: ", errorMessage);
-        alert("Post Creation Failed: " + errorMessage);
-      } else {
-        alert("Post Creation Successful");
-        window.location.href = "home.html"; // ✅ Przekierowanie po sukcesie
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("An unexpected error occurred: " + error.message);
-      window.location.href = "login.html"; // ✅ Przekierowanie w przypadku błędu
-    }
-  });
+      try {
+        const response = await fetch("/api/posts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({ title, content })
+        });
 
+        if (!response.ok) {
+          throw new Error("Błąd zapisu posta.");
+        }
+
+        alert("Post added!");
+        window.location.href = "allPosts.html";
+
+      } catch (error) {
+        console.error("Error sending the Post:", error);
+        alert("Post not added.");
+      }
+    });
+  });
 </script>
+
 </body>
 </html>
